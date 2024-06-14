@@ -38,3 +38,10 @@ test("a branch can be created from scratch", async () => {
   }
   expect(branch.name).toBe("main");
 });
+
+test("creating a branch with invalid data throws an error", async () => {
+  const db = new VersionControlledDb(new Database(serializedSchema));
+  await expect(db.createBranch({ name: "" })).rejects.toThrow(
+    "Branch name is required",
+  );
+});

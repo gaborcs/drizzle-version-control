@@ -11,6 +11,9 @@ export class VersionControlledDb {
   }
 
   async createBranch(props: { name: string }): Promise<number> {
+    if (!props.name) {
+      throw new Error("Branch name is required");
+    }
     const insertedRows = await this.#db
       .insert(versionControlTables.branches)
       .values(props)
