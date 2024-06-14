@@ -4,7 +4,8 @@ import { promisify } from "node:util";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { beforeAll, expect, test } from "vitest";
-import * as schema from "./example-schema";
+import { VersionControlledDb } from "../src/VersionControlledDb";
+import * as exampleSchema from "./example-schema";
 
 const exec = promisify(execWithCallback);
 
@@ -24,6 +25,16 @@ beforeAll(async () => {
 });
 
 test("schema can be created", async () => {
-  const db = drizzle(new Database(serializedSchema), { schema });
+  const db = drizzle(new Database(serializedSchema), { schema: exampleSchema });
   expect(db).toBeDefined();
+});
+
+test("a branch can be created from scratch", async () => {
+  const db = new VersionControlledDb(new Database(serializedSchema));
+  const branchId = await db.createBranch({ name: "main" });
+  const branch = await db.getBranch(branchId);
+  if (!branch) {
+    throw new Error("Branch not found");
+  }
+  expect(branch.name).toBe("main");
 });
